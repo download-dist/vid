@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Download</title>
+</head>
+<body>
+    <a id="dl" href="https://github.com">download</a>
+    <script>
+        function dl() {
+            alert("test");
+        }
+        const theLink = document.getElementById("dl");
+        theLink.addEventListener("click", (e) => {
+            e.preventDefault();  // Prevent the default behavior of the link (i.e., navigating to the URL)
+            dl();
+        });
+    </script>
+</body>
+</html>
