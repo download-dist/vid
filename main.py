@@ -12,8 +12,8 @@ import tkinter as tk
 from tkinter import filedialog
 
 
-FFMPEG  = os.path.join(r'C:\ffmpeg\ffmpeg.exe')
-FFPROBE = os.path.join(r'C:\ffmpeg\ffprobe.exe')
+FFMPEG  = os.path.join('C:', 'ffmpeg', 'ffmpeg.exe')
+FFPROBE = os.path.join('C:', 'ffmpeg', 'ffprobe.exe')
 
 
 class Rt:
@@ -87,18 +87,22 @@ def render():
         show_text(f'Loading... ({round(100*n_done/n_out)}%)')
         curr_dur = min(vdur-anchor_t, 55)
 
+        QUALITY = '24'
         cmd = [
             FFMPEG,
             '-v', 'error',
+            '-hwaccel', 'auto',
             '-f', 'lavfi', '-i', f'color=s=720x1280:c=0x000000:d={curr_dur}:r=30',
             '-ss', str(anchor_t), '-t', str(curr_dur), '-i', Rt.video,
             '-t', str(curr_dur), '-i', Rt.logo,
             '-filter_complex', filter_complex,
             '-map', '[out_v]',
             '-map', '1:a',
-            '-q:v', '5',
-            '-r', '24',
-            os.path.join(Rt.output_dir, f'vid-{str(int(time.time())).zfill(13)}-{"".join(random.choices("abcdef", k=7))}.mp4')
+            '-c:v', 'h264_amf',
+            '-rc', 'cqp',
+            '-qp_i', QUALITY, '-qp_p', QUALITY, '-qp_b', QUALITY,
+            '-r', '30',
+            os.path.join(Rt.output_dir, f'vid-{str(int(time.time())).zfill(13)}-{"".join(random.choices("abcdef", k=13))}.mp4')
         ]
         # print(repr(' '.join(cmd)))
         # if input('Continue? ') == 'n': sys.exit(1)
