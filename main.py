@@ -12,15 +12,9 @@ import tkinter as tk
 from tkinter import filedialog
 
 
-FFMPEG  = os.path.join('C:', 'ffmpeg', 'ffmpeg.exe')
-FFPROBE = os.path.join('C:', 'ffmpeg', 'ffprobe.exe')
-if not os.path.isfile(FFMPEG):
-    print('ffmpeg not found')
-if not os.path.isfile(FFPROBE):
-    print('ffprobe not found')
-
-
 class Rt:
+    ffmpeg = None
+    ffprobe = None
     video = None
     logo = None
     output_dir = None
@@ -30,39 +24,63 @@ class Rt:
     btn1 = None
     btn2 = None
     btn3 = None
+    btn4 = None
+    btn5 = None
 
     label = None
 
-def get_video():
-    pth = filedialog.askopenfilename()
-    if not pth.lower().endswith(('.mp4', '.mov', '.avi')):
-        sys.exit(1)
-    Rt.video = pth
-    print('vid: ', repr(pth))
+def get_ffmpeg():
+    Rt.ffmpeg = filedialog.askopenfilename()
+    print(f'ffmpeg: {repr(Rt.ffmpeg)}')
     Rt.btn1.config(state=tk.DISABLED)
     Rt.btn2.config(state=tk.NORMAL)
+    show_text('set ffprobe')
+    if not Rt.ffmpeg.lower().endswith('ffmpeg.exe'):
+        print('invalid ffmpeg')
+        Rt.btn2.config(state=tk.DISABLED)
+
+def get_ffprobe():
+    Rt.ffprobe = filedialog.askopenfilename()
+    print(f'ffprobe: {repr(Rt.ffprobe)}')
+    Rt.btn2.config(state=tk.DISABLED)
+    Rt.btn3.config(state=tk.NORMAL)
+    show_text('set video')
+    if not Rt.ffprobe.lower().endswith('ffprobe.exe'):
+        print('invalid ffprobe')
+        Rt.btn3.config(state=tk.DISABLED)
+
+def get_video():
+    pth = filedialog.askopenfilename()
+    Rt.video = pth
+    print('vid: ', repr(pth))
+    Rt.btn3.config(state=tk.DISABLED)
+    Rt.btn4.config(state=tk.NORMAL)
     show_text('select logo')
+    if not pth.lower().endswith(('.mp4', '.mov', '.avi')):
+        print('invalid video')
+        Rt.btn4.config(state=tk.DISABLED)
 
 def get_logo():
     pth = filedialog.askopenfilename()
-    if not pth.lower().endswith(('.jpg', '.png', '.jpeg')):
-        sys.exit(1)
     Rt.logo = pth
     print('logo: ', repr(pth))
-    Rt.btn2.config(state=tk.DISABLED)
-    Rt.btn3.config(state=tk.NORMAL)
+    Rt.btn4.config(state=tk.DISABLED)
+    Rt.btn5.config(state=tk.NORMAL)
     show_text('select save')
+    if not pth.lower().endswith(('.jpg', '.png', '.jpeg')):
+        print('invalid logo')
+        Rt.btn5.config(state=tk.DISABLED)
 
 def get_output_dir():
     Rt.output_dir = filedialog.askdirectory()
     print('vid: ', repr(Rt.output_dir))
-    Rt.btn3.config(state=tk.DISABLED)
+    Rt.btn5.config(state=tk.DISABLED)
     show_text('loading...')
     render()
 
 def get_dur(pth):
     print('xyz', [
-            FFPROBE, '-v', 'error',
+            Rt.ffprobe, '-v', 'error',
             '-select_streams', 'v',
             '-of', 'csv=p=0',
             '-show_entries', 'stream=duration',
@@ -70,7 +88,7 @@ def get_dur(pth):
         ])
     stdout = sp.check_output(
         [
-            FFPROBE, '-v', 'error',
+            Rt.ffprobe, '-v', 'error',
             '-select_streams', 'v',
             '-of', 'csv=p=0',
             '-show_entries', 'stream=duration',
@@ -86,6 +104,7 @@ def show_text(text):
     Rt.root.update()
 
 def render():
+    sp.run(['explorer', os.path.abspath(Rt.output_dir)], shell=True)
 
     vdur = get_dur(Rt.video)
     n_out = math.ceil(vdur/55)
@@ -105,9 +124,8 @@ def render():
         show_text(f'Loading... ({round(100*n_done/n_out)}%)')
         curr_dur = min(vdur-anchor_t, 55)
 
-        QUALITY = '24'
         cmd = [
-            FFMPEG,
+            Rt.ffmpeg,
             '-v', 'error', '-stats',
             '-f', 'lavfi', '-i', f'color=s=720x1280:c=0x000000:d={curr_dur}:r=30',
             '-ss', str(anchor_t), '-t', str(curr_dur), '-i', Rt.video,
@@ -115,7 +133,7 @@ def render():
             '-filter_complex', filter_complex,
             '-map', '[out_v]',
             '-map', '1:a',
-            '-q:v', QUALITY,
+            '-q:v', '21',
             '-r', '30',
             os.path.join(Rt.output_dir, f'vid-{str(int(time.time())).zfill(13)}-{"".join(random.choices("abcdef", k=13))}.mp4')
         ]
@@ -136,31 +154,38 @@ def render():
 def main():
 
     root = tk.Tk()
-    root.title('app_5')
+    root.title('app_6')
     root.iconbitmap(None)
-    root.geometry('355x230+30+30')
+    root.geometry('400x330+100+100')
     root.configure(bg='#111')
     Rt.root = root
 
     X, Y, G = 30, 40, 40
-    btn1 = tk.Button(root, width=10, text='Video', command=get_video)
+    btn1 = tk.Button(root, width=10, text='ffmpeg', command=get_ffmpeg)
     btn1.place(x=X, y=Y+G*0)
     Rt.btn1 = btn1
 
-    btn2 = tk.Button(root, width=10, text='Logo', command=get_logo, state=tk.DISABLED)
+    btn2 = tk.Button(root, width=10, text='ffprobe', command=get_ffprobe, state=tk.DISABLED)
     btn2.place(x=X, y=Y+G*1)
     Rt.btn2 = btn2
 
-    btn3 = tk.Button(root, width=10, text='Save', command=get_output_dir, state=tk.DISABLED)
+    btn3 = tk.Button(root, width=10, text='video', command=get_video, state=tk.DISABLED)
     btn3.place(x=X, y=Y+G*2)
     Rt.btn3 = btn3
 
+    btn4 = tk.Button(root, width=10, text='logo', command=get_logo, state=tk.DISABLED)
+    btn4.place(x=X, y=Y+G*3)
+    Rt.btn4 = btn4
+
+    btn5 = tk.Button(root, width=10, text='save', command=get_output_dir, state=tk.DISABLED)
+    btn5.place(x=X, y=Y+G*4)
+    Rt.btn5 = btn5
+
     label = tk.Label(root, text='')
-    label.place(x=X, y=Y+G*3+25, anchor='w')
+    label.place(x=X, y=Y+G*5+25, anchor='w')
     Rt.label = label
 
-    show_text('select video')
-
+    show_text('set ffmpeg')
     root.mainloop()
 
 
