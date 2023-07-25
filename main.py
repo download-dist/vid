@@ -120,7 +120,7 @@ def render():
 def main():
 
     root = tk.Tk()
-    root.title('')
+    root.title('app_1')
     root.iconbitmap(None)
     root.geometry('355x230+30+30')
     root.configure(bg='#111')
