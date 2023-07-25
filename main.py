@@ -34,23 +34,36 @@ def get_video():
     if not pth.lower().endswith(('.mp4', '.mov', '.avi')):
         sys.exit(1)
     Rt.video = pth
+    print('vid: ', repr(pth))
     Rt.btn1.config(state=tk.DISABLED)
     Rt.btn2.config(state=tk.NORMAL)
+    show_text('select logo')
 
 def get_logo():
     pth = filedialog.askopenfilename()
     if not pth.lower().endswith(('.jpg', '.png', '.jpeg')):
         sys.exit(1)
     Rt.logo = pth
+    print('logo: ', repr(pth))
     Rt.btn2.config(state=tk.DISABLED)
     Rt.btn3.config(state=tk.NORMAL)
+    show_text('select save')
 
 def get_output_dir():
     Rt.output_dir = filedialog.askdirectory()
+    print('vid: ', repr(Rt.output_dir))
     Rt.btn3.config(state=tk.DISABLED)
+    show_text('loading...')
     render()
 
 def get_dur(pth):
+    print('xyz', [
+            FFPROBE, '-v', 'error',
+            '-select_streams', 'v',
+            '-of', 'csv=p=0',
+            '-show_entries', 'stream=duration',
+            pth
+        ])
     stdout = sp.check_output(
         [
             FFPROBE, '-v', 'error',
@@ -101,7 +114,7 @@ def render():
             '-r', '30',
             os.path.join(Rt.output_dir, f'vid-{str(int(time.time())).zfill(13)}-{"".join(random.choices("abcdef", k=13))}.mp4')
         ]
-        # print(repr(' '.join(cmd)))
+        print(repr(' '.join(cmd)))
         # if input('Continue? ') == 'n': sys.exit(1)
         code = sp.call(cmd)
         if code != 0: sys.exit(1)
@@ -118,7 +131,7 @@ def render():
 def main():
 
     root = tk.Tk()
-    root.title('app_1')
+    root.title('app_5')
     root.iconbitmap(None)
     root.geometry('355x230+30+30')
     root.configure(bg='#111')
@@ -140,6 +153,8 @@ def main():
     label = tk.Label(root, text='')
     label.place(x=X, y=Y+G*3+25, anchor='w')
     Rt.label = label
+
+    show_text('select video')
 
     root.mainloop()
 
