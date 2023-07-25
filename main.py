@@ -98,9 +98,8 @@ def render():
             '-filter_complex', filter_complex,
             '-map', '[out_v]',
             '-map', '1:a',
-            '-c:v', 'h264_amf',
-            '-rc', 'cqp',
-            '-qp_i', QUALITY, '-qp_p', QUALITY, '-qp_b', QUALITY,
+            '-c:v', 'h264_nvenc',
+            '-qp', QUALITY,
             '-r', '30',
             os.path.join(Rt.output_dir, f'vid-{str(int(time.time())).zfill(13)}-{"".join(random.choices("abcdef", k=13))}.mp4')
         ]
