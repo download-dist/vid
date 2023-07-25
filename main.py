@@ -14,6 +14,10 @@ from tkinter import filedialog
 
 FFMPEG  = os.path.join('C:', 'ffmpeg', 'ffmpeg.exe')
 FFPROBE = os.path.join('C:', 'ffmpeg', 'ffprobe.exe')
+if not os.path.isfile(FFMPEG):
+    print('ffmpeg not found')
+if not os.path.isfile(FFPROBE):
+    print('ffprobe not found')
 
 
 class Rt:
@@ -85,6 +89,7 @@ def render():
 
     vdur = get_dur(Rt.video)
     n_out = math.ceil(vdur/55)
+    print(f'vdur: {vdur}  n_out: {n_out}')
 
     filter_complex = (
         '[1:v]scale=720:-1[v1] ;'
@@ -103,7 +108,7 @@ def render():
         QUALITY = '24'
         cmd = [
             FFMPEG,
-            '-v', 'error',
+            '-v', 'error', '-stats',
             '-f', 'lavfi', '-i', f'color=s=720x1280:c=0x000000:d={curr_dur}:r=30',
             '-ss', str(anchor_t), '-t', str(curr_dur), '-i', Rt.video,
             '-t', str(curr_dur), '-i', Rt.logo,
