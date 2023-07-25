@@ -91,15 +91,13 @@ def render():
         cmd = [
             FFMPEG,
             '-v', 'error',
-            '-hwaccel', 'auto',
             '-f', 'lavfi', '-i', f'color=s=720x1280:c=0x000000:d={curr_dur}:r=30',
             '-ss', str(anchor_t), '-t', str(curr_dur), '-i', Rt.video,
             '-t', str(curr_dur), '-i', Rt.logo,
             '-filter_complex', filter_complex,
             '-map', '[out_v]',
             '-map', '1:a',
-            '-c:v', 'h264_nvenc',
-            '-qp', QUALITY,
+            '-q:v', QUALITY,
             '-r', '30',
             os.path.join(Rt.output_dir, f'vid-{str(int(time.time())).zfill(13)}-{"".join(random.choices("abcdef", k=13))}.mp4')
         ]
