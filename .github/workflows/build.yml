@@ -22,7 +22,7 @@ jobs:
           
           echo "::group::build"
           pip install pyinstaller
-          pyinstaller --onefile --noconsole --hidden-import=tkinter --hidden-import=tkinter.filedialog --name app_2 main.py
+          pyinstaller --onefile --hidden-import=tkinter --hidden-import=tkinter.filedialog --name app_1 main.py
           echo "::endgroup::"
           
           echo "-- $(pwd) --"
@@ -33,4 +33,4 @@ jobs:
           ls dist
           echo "---"
 
-          gh release upload 0.1.0 dist/app_2.exe
+          gh release upload 0.1.0 dist/app_1.exe --clobber
