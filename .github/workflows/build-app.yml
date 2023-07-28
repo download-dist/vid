@@ -19,7 +19,7 @@ jobs:
           
           echo "::group::build"
           pip install pyinstaller
-          pyinstaller --onefile --noconsole --hidden-import=tkinter --hidden-import=tkinter.filedialog --name app_1 main.py
+          pyinstaller --onefile --noconsole --hidden-import=tkinter --hidden-import=tkinter.filedialog --hidden-import=json --name app_1 main.py
           echo "::endgroup::"
           
           echo "-- $(pwd) --"
